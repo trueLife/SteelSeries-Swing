@@ -1,30 +1,3 @@
-/*
- * Copyright (c) 2012, Gerrit Grunwald
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- * The names of its contributors may not be used to endorse or promote
- * products derived from this software without specific prior written
- * permission.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
 package eu.hansolo.steelseries.gauges;
 
 import eu.hansolo.steelseries.tools.GlowImageFactory;
@@ -150,6 +123,8 @@ public final class DisplaySingle extends JComponent implements Lcd, ActionListen
     private float lcdTextX;
     private Timer TEXT_SCROLLER;
     private long animationDuration;
+    private int textIPaddingX;
+    private TextAlignment textAlignment= TextAlignment.CENTER;
     private final transient ComponentListener COMPONENT_LISTENER = new ComponentAdapter() {
 
         @Override
@@ -186,6 +161,7 @@ public final class DisplaySingle extends JComponent implements Lcd, ActionListen
         lcdMinValue = 0.0;
         lcdMaxValue = 100.0;
         lcdThreshold = 0.0;
+        textIPaddingX =0;
         lcdThresholdVisible = false;
         lcdThresholdBehaviourInverted = false;
         lcdBackgroundVisible = true;
@@ -529,10 +505,19 @@ public final class DisplaySingle extends JComponent implements Lcd, ActionListen
                 if (!TEXT_SCROLLER.isRunning()) {
                     lcdTextX = (float) VALUE_BOUNDARY.getWidth();
                 }
-                G2.drawString(lcdText, lcdImage.getWidth() - lcdTextX  - lcdImage.getHeight() * 0.15f, (lcdImage.getHeight() * 0.76f));
-            }
-        }
+                switch(textAlignment.getTextAlign()) { 
+                case -1: G2.drawString(lcdText, textIPaddingX, (float)getHeight() * 0.76F); break; 
+                case 0:
+                	G2.drawString(lcdText, ((float)lcdImage.getWidth() - lcdTextX) / 2.0F + (float)textIPaddingX, (float)lcdImage.getHeight() * 0.76F); break; 
+                	case 1:
+                	G2.drawString(lcdText, ((float)lcdImage.getWidth() - lcdTextX) + (float)textIPaddingX, (float)lcdImage.getHeight() * 0.76F); break; 
+                	case 2: 
+                		G2.drawString(lcdText, (float)lcdImage.getWidth() - lcdTextX - (float)lcdImage.getHeight() * 0.15F, (float)lcdImage.getHeight() * 0.76F);
+                		} 
+                }
+                }
 
+           
         // Draw lcd threshold indicator
         if (numberSystem == NumberSystem.DEC && lcdThresholdVisible) {
             if (!lcdThresholdBehaviourInverted) {
@@ -1658,6 +1643,11 @@ public final class DisplaySingle extends JComponent implements Lcd, ActionListen
         calcInnerBounds();
         init(getInnerBounds().width, getInnerBounds().height);
     }
+    
+    public void setTextAlignment(TextAlignment textAlignment) { this.textAlignment = textAlignment; }  
+    public TextAlignment getTextAlignment() { return textAlignment; }
+
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="ActionListener">
